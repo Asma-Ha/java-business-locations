@@ -22,8 +22,16 @@ public class InvocationLocation extends BusinessLocation<CtInvocation> {
         int source_end = original.getPosition().getSourceEnd();
 
         //we count backwards from the end of the element until the beginning of the method call
-        int callee_length = original.toString().length() - original.toString().lastIndexOf("." + originalOp) - 1;
-        int start =  source_end - callee_length + 1 ;
+        int start,end = 0;
+        if (original.toString().contains(".")) {
+            int callee_length = original.toString().length() - original.toString().lastIndexOf("." + originalOp) - 1;
+            start =  source_end - callee_length + 1 ;
+            end = start + originalOp.length() - 1;
+        } else {
+            start = original.getPosition().getSourceStart();
+            end = start + originalOp.length() - 2;
+        }
+
 
         int end = start + originalOp.length() - 1;
         //compute token to mutate position
