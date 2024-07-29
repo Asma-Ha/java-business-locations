@@ -11,7 +11,7 @@ abstract class AbstractValidationAssert<SELF extends AbstractValidationAssert<SE
 
     AbstractValidationAssert(Validation<INVALID, VALID> actual, Class<?> selfType) {
         super(actual, condition);
-        String p = validation.getClass().getSimpleName()
+        String p = validation.getClass().getSimpleName();
         this.validationValueComparisonStrategy = StandardComparisonStrategy.instance();
     }
 }

@@ -3,10 +3,28 @@ package edu.lu.uni.serval.javabusinesslocs.locations;
 import edu.lu.uni.serval.javabusinesslocs.output.CodePosition;
 import edu.lu.uni.serval.javabusinesslocs.output.Operators;
 
+import spoon.compiler.Environment;
+import spoon.reflect.code.CtBlock;
+import spoon.reflect.code.CtExpression;
 import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtTargetedExpression;
 import spoon.reflect.cu.CompilationUnit;
 import spoon.reflect.cu.SourcePosition;
+import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtConstructor;
+import spoon.reflect.declaration.CtElement;
+import spoon.reflect.declaration.CtExecutable;
+import spoon.reflect.reference.CtExecutableReference;
+import spoon.reflect.reference.CtPackageReference;
+import spoon.reflect.reference.CtTypeReference;
+import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.reflect.cu.position.SourcePositionImpl;
+import spoon.support.reflect.reference.CtPackageReferenceImpl;
+import spoon.support.reflect.reference.CtTypeReferenceImpl;
+
+import javax.swing.text.Position;
+
+import java.util.List;
 
 import static edu.lu.uni.serval.javabusinesslocs.output.Operators.InvocationMutator;
 
@@ -19,36 +37,35 @@ public class InvocationLocation extends BusinessLocation<CtInvocation> {
     @Override
     public CodePosition getCodePosition(CtInvocation original) throws UnhandledElementException {
         String originalOp = getOriginalValueOfTheNode(original);
-        int source_end = original.getPosition().getSourceEnd();
+        int source_start = original.getPosition().getSourceStart();
 
-        //we count backwards from the end of the element until the beginning of the method call
         int start,end = 0;
-        if (original.toString().contains(".")) {
-            int callee_length = original.toString().length() - original.toString().lastIndexOf("." + originalOp) - 1;
-            start =  source_end - callee_length + 1 ;
-            end = start + originalOp.length() - 1;
+
+        if (original.toString().contains("."+originalOp)) {
+            if(!original.getTarget().getPosition().isValidPosition()) {
+                start = source_start;
+                end = start + originalOp.length() - 1;
+            } else {
+                start = original.getTarget().getPosition().getSourceEnd() + 2;
+                end = start + originalOp.length() - 1;
+            }
+
         } else {
-            start = original.getPosition().getSourceStart();
-            end = start + originalOp.length() - 2;
-        }
-
-
-        int end = start + originalOp.length() - 1;
-        //compute token to mutate position
-        /*start = original.getPosition().getSourceStart();
-        if (original.getTarget()!= null && !original.getTarget().isImplicit() && original.getTarget().toString().length() > 0) {
-            List<CtTypeReferenceImpl> source = original.getTarget().getElements(new TypeFilter<>(CtTypeReferenceImpl.class));
-            String package_full_name = source.get(0).getPackage().getSimpleName();
-            //start = original.getTarget().getPosition().getSourceStart() + original.getTarget().toString().length()+1;
-            callee_length = original.getTarget().toString().length() - package_full_name.length();
-            start = original.getTarget().getPosition().getSourceStart() + callee_length;
+            start = source_start;
+            end = start + originalOp.length() - 1;
+            //super is called as init
+            if (originalOp.equals("<init>"))
+                end--;
 
         }
-        end = start + originalOp.length() -1;*/
+
+
         CompilationUnit origUnit = original.getPosition().getCompilationUnit();
         SourcePosition position = new SourcePositionImpl(origUnit,start,end,origUnit.getLineSeparatorPositions());
         if (!position.isValidPosition()) return super.getCodePosition(original);
         return new CodePosition(position.getSourceStart(), position.getSourceEnd());
+
+
     }
 
     @Override

@@ -43,8 +43,12 @@ public class BusinessLocation<T extends CtElement> extends Location {
         // simple tokens parsing first
         if (ctElement instanceof CtBinaryOperator) {
             res.add(new BinaryOperatorLocation(firstMutantId, (CtBinaryOperator) ctElement));
+            if (CONDITIONS_AS_TKN && !(ctElement.getParent() instanceof CtLoop || ctElement.getParent() instanceof CtIf))
+                res.add(new BinaryOperationLocation(firstMutantId, (CtBinaryOperator) ctElement));
         } else if (ctElement instanceof CtUnaryOperator) {
             res.add(new UnaryOperatorLocation(firstMutantId, (CtUnaryOperator) ctElement));
+            if (CONDITIONS_AS_TKN && !(ctElement.getParent() instanceof CtLoop || ctElement.getParent() instanceof CtIf))
+                res.add(new UnaryOperationLocation(firstMutantId, (CtUnaryOperator) ctElement));
         } else if (ctElement instanceof CtAssignment) {
             res.add(new AssignmentLocation(firstMutantId, (CtAssignment) ctElement));
         } else if (ctElement instanceof CtArrayRead ||

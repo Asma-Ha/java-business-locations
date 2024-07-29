@@ -5,6 +5,8 @@ import spoon.reflect.cu.SourcePosition;
 import spoon.reflect.declaration.*;
 import spoon.reflect.reference.CtFieldReference;
 import spoon.reflect.reference.CtTypeReference;
+import spoon.support.reflect.code.CtIfImpl;
+import spoon.support.reflect.reference.CtTypeReferenceImpl;
 
 import static edu.lu.uni.serval.javabusinesslocs.locations.BusinessLocation.CONDITIONS_AS_TKN;
 import static edu.lu.uni.serval.javabusinesslocs.locations.BusinessLocation.IF_CONDITIONS_AS_TKN;
@@ -58,6 +60,8 @@ public final class LocsUtils {
 
     public static boolean isToBeProcessed(CtElement candidate) {
         //while, for, do and if are labeled implicit by the method isImplicit
+
+
         if((CONDITIONS_AS_TKN && candidate instanceof CtLoop)
             ||((CONDITIONS_AS_TKN || IF_CONDITIONS_AS_TKN) && candidate instanceof CtIf)){
             return !candidate.isImplicit();
@@ -73,15 +77,21 @@ public final class LocsUtils {
                 inheritsFromAssertion(candidate)
         )
             return false;
+
+
         if (candidate instanceof CtExpression
                 || candidate instanceof CtFieldReference)
             return true;
 
+
+
+
         if (candidate instanceof CtTypeReference && candidate.getParent() != null
                 && candidate.getParent() instanceof CtTypeAccess
-                && !inheritsFromConstructorCall(candidate)) {
+                && !inheritsFromConstructorCall(candidate))
             return true;
-        }
+
+
         return false;
     }
 
